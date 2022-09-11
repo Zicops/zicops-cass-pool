@@ -27,30 +27,32 @@ func NewCassandraConfig() *CassandraConfig {
 		Keyspace: getEnv("CASSANDRA_KEYSPACE", "userz"),
 	}
 	cert := getEnv("CASSANDRA_CERT", "")
-	certPEMBlock, err := base64.StdEncoding.DecodeString(cert)
-	if err != nil {
-		panic(err)
-	}
-	key := getEnv("CASSANDRA_KEY", "")
-	keyPEMBlock, err := base64.StdEncoding.DecodeString(key)
-	if err != nil {
-		panic(err)
-	}
-	ca := getEnv("CASSANDRA_CA", "")
-	caPEMBlock, err := base64.StdEncoding.DecodeString(ca)
-	if err != nil {
-		panic(err)
-	}
-	certPair, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-	if err != nil {
-		panic(err)
-	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caPEMBlock)
-	currentConfig.TlsConfig = &tls.Config{
-		Certificates: []tls.Certificate{certPair},
-		RootCAs:      caCertPool,
-		ServerName:   currentConfig.Host,
+	if cert != "" {
+		certPEMBlock, err := base64.StdEncoding.DecodeString(cert)
+		if err != nil {
+			panic(err)
+		}
+		key := getEnv("CASSANDRA_KEY", "")
+		keyPEMBlock, err := base64.StdEncoding.DecodeString(key)
+		if err != nil {
+			panic(err)
+		}
+		ca := getEnv("CASSANDRA_CA", "")
+		caPEMBlock, err := base64.StdEncoding.DecodeString(ca)
+		if err != nil {
+			panic(err)
+		}
+		certPair, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
+		if err != nil {
+			panic(err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caPEMBlock)
+		currentConfig.TlsConfig = &tls.Config{
+			Certificates: []tls.Certificate{certPair},
+			RootCAs:      caCertPool,
+			ServerName:   currentConfig.Host,
+		}
 	}
 	return currentConfig
 }
