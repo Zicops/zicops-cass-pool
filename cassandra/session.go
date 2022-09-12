@@ -2,8 +2,8 @@ package cassandra
 
 import gocql "github.com/gocql/gocql"
 
-func GetCassSession() (*gocql.Session, error) {
-	cluster, err := New(NewCassandraConfig())
+func GetCassSession(keyspace string) (*gocql.Session, error) {
+	cluster, err := New(NewCassandraConfig(keyspace))
 	if err != nil {
 		return nil, err
 	}
