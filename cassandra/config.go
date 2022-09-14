@@ -27,11 +27,23 @@ func NewCassandraConfig(keyspace string) *CassandraConfig {
 	}
 	cert := getEnv("CASSANDRA_CERT", "")
 	if cert != "" {
-		certPEMBlock := []byte(cert)
+		certPEMFile := cert
+		certPEMBlock, err := os.ReadFile(certPEMFile)
+		if err != nil {
+			panic(err)
+		}
 		key := getEnv("CASSANDRA_KEY", "")
-		keyPEMBlock := []byte(key)
+		keyFile := key
+		keyPEMBlock, err := os.ReadFile(keyFile)
+		if err != nil {
+			panic(err)
+		}
 		ca := getEnv("CASSANDRA_CA", "")
-		caPEMBlock := []byte(ca)
+		caFile := ca
+		caPEMBlock, err := os.ReadFile(caFile)
+		if err != nil {
+			panic(err)
+		}
 		certPair, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 		if err != nil {
 			panic(err)
