@@ -2,10 +2,10 @@ package cassandra
 
 import gocqlx "github.com/scylladb/gocqlx/v2"
 
-var GlobalSession *gocqlx.Session
+var GlobalSession map[string]*gocqlx.Session
 
 func GetCassSession(keyspace string) (*gocqlx.Session, error) {
-	if GlobalSession == nil || GlobalSession.Closed() {
+	if GlobalSession[keyspace] == nil || GlobalSession[keyspace].Closed() {
 		cluster, err := New(NewCassandraConfig(keyspace))
 		if err != nil {
 			return nil, err
@@ -14,7 +14,7 @@ func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 		if err != nil {
 			return nil, err
 		}
-		GlobalSession = &session
+		GlobalSession[keyspace] = &session
 	}
-	return GlobalSession, nil
+	return GlobalSession[keyspace], nil
 }
