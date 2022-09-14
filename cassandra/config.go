@@ -3,7 +3,6 @@ package cassandra
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/base64"
 	"os"
 )
 
@@ -28,20 +27,11 @@ func NewCassandraConfig(keyspace string) *CassandraConfig {
 	}
 	cert := getEnv("CASSANDRA_CERT", "")
 	if cert != "" {
-		certPEMBlock, err := base64.StdEncoding.DecodeString(cert)
-		if err != nil {
-			panic(err)
-		}
+		certPEMBlock := []byte(cert)
 		key := getEnv("CASSANDRA_KEY", "")
-		keyPEMBlock, err := base64.StdEncoding.DecodeString(key)
-		if err != nil {
-			panic(err)
-		}
+		keyPEMBlock := []byte(key)
 		ca := getEnv("CASSANDRA_CA", "")
-		caPEMBlock, err := base64.StdEncoding.DecodeString(ca)
-		if err != nil {
-			panic(err)
-		}
+		caPEMBlock := []byte(ca)
 		certPair, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
 		if err != nil {
 			panic(err)
