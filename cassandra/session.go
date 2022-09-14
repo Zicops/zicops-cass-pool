@@ -2,7 +2,8 @@ package cassandra
 
 import gocqlx "github.com/scylladb/gocqlx/v2"
 
-var GlobalSession map[string]*gocqlx.Session
+// GlobalSession is a map of cassandra sessions
+var GlobalSession = make(map[string]*gocqlx.Session)
 
 func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 	if GlobalSession[keyspace] == nil || GlobalSession[keyspace].Closed() {
