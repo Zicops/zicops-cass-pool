@@ -5,7 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
+	//"github.com/garyburd/redigo/redis"
 )
 
 var (
@@ -19,7 +20,7 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func init() {
+func Initialize() (*redis.Pool, error) {
 	redisHost := getEnv("REDIS_HOST", "127.0.0.1")
 	redisPort := getEnv("REDIS_PORT", "6379")
 	redisPassword := getEnv("REDIS_PASSWORD", "")
@@ -41,6 +42,7 @@ func init() {
 			return c, nil
 		},
 	}
+	return redisPool, nil
 }
 
 func GetRedisPool() *redis.Pool {
