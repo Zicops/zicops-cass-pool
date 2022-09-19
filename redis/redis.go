@@ -76,3 +76,10 @@ func DeleteRedisValue(key string) error {
 	_, err := conn.Do("DEL", key)
 	return err
 }
+
+func SetTTL(key string, ttl int) error {
+	conn := GetRedisConn()
+	defer CloseRedisConn(conn)
+	_, err := conn.Do("EXPIRE", key, ttl)
+	return err
+}
