@@ -16,7 +16,7 @@ type NotificationOutput struct {
 func SendNotification(title, body, token string) (NotificationOutput, error) {
 	var output NotificationOutput
 	gqlQuery := fmt.Sprintf(`mutation { sendNotification(title: "%s", body: "%s", token: "%s") { statuscode } }`, title, body, token)
-	code, err := PostRequest("http://zicops-notification-server:8080/query", gqlQuery)
+	code, err := PostRequest("http://zicops-notification-server.default.svc.cluster.local:8094/query", gqlQuery)
 	if err != nil {
 		return output, err
 	}
