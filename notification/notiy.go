@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -15,8 +16,13 @@ type NotificationOutput struct {
 
 func SendNotification(title, body, token string) (NotificationOutput, error) {
 	var output NotificationOutput
+	// url from env
+	url := os.Getenv("NOTIFICATION_URL")
+	if url == "" {
+		url = "https://demo.zicops.com/ns/query"
+	}
 	gqlQuery := fmt.Sprintf(`mutation { sendNotification(title: "%s", body: "%s", token: "%s") { statuscode } }`, title, body, token)
-	code, err := PostRequest("http://zicops-notification-server.default.svc.cluster.local:8094/query", gqlQuery)
+	code, err := PostRequest(url, gqlQuery)
 	if err != nil {
 		return output, err
 	}
