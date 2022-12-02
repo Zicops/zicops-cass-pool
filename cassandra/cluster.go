@@ -32,5 +32,6 @@ func New(conf *CassandraConfig) (*gocql.ClusterConfig, error) {
 	}
 	cluster.Timeout = time.Hour
 	cluster.ConnectTimeout = time.Hour
+	cluster.SocketKeepalive = time.Hour
 	return cluster, nil
 }
