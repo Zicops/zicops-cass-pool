@@ -2,6 +2,7 @@ package cassandra
 
 import (
 	"strconv"
+	"time"
 
 	gocql "github.com/gocql/gocql"
 	log "github.com/sirupsen/logrus"
@@ -29,5 +30,7 @@ func New(conf *CassandraConfig) (*gocql.ClusterConfig, error) {
 			Config: conf.TlsConfig,
 		}
 	}
+	cluster.Timeout = time.Hour
+	cluster.ConnectTimeout = time.Hour
 	return cluster, nil
 }
