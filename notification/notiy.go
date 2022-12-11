@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -14,13 +13,9 @@ type NotificationOutput struct {
 	Statuscode string `json:"statuscode"`
 }
 
-func SendNotification(title, body, token string) (NotificationOutput, error) {
+func SendNotification(title, body, token string, origin string) (NotificationOutput, error) {
+	url := fmt.Sprintf("https://%s/query", origin)
 	var output NotificationOutput
-	// url from env
-	url := os.Getenv("NOTIFICATION_URL")
-	if url == "" {
-		url = "https://demo.zicops.com/ns/query"
-	}
 	gqlQuery := fmt.Sprintf(`mutation { sendNotification(title: "%s", body: "%s", token: "%s") { statuscode } }`, title, body, token)
 	code, err := PostRequest(url, gqlQuery)
 	if err != nil {
