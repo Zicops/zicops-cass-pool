@@ -16,7 +16,7 @@ type NotificationOutput struct {
 func SendNotification(title, body, user_token string, fcm_token string, origin string) (NotificationOutput, error) {
 	url := fmt.Sprintf("https://%s/query", origin)
 	var output NotificationOutput
-	gqlQuery := fmt.Sprintf(`mutation { sendNotification(title: "%s", body: "%s") { statuscode } }`, title, body)
+	gqlQuery := fmt.Sprintf(`mutation { sendNotification(title: "%s", body: "%s" user_id: ["%s"]) { statuscode } }`, title, body, user_token)
 	code, err := PostRequest(url, gqlQuery, user_token, fcm_token)
 	if err != nil {
 		return output, err
