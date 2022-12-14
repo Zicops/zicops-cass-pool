@@ -1,6 +1,11 @@
 package cassandra
 
-import gocqlx "github.com/scylladb/gocqlx/v2"
+import (
+	"time"
+
+	gocql "github.com/gocql/gocql"
+	gocqlx "github.com/scylladb/gocqlx/v2"
+)
 
 // GlobalSession is a map of cassandra sessions
 var GlobalSession = make(map[string]*gocqlx.Session)
@@ -11,6 +16,9 @@ func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 		if err != nil {
 			return nil, err
 		}
+		cluster.ReconnectionPolicy = &gocql.ConstantReconnectionPolicy{MaxRetries: 10, Interval: 5 * time.Second}
+		cluster.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 10}
+		cluster.NumConns = 10
 		session, err := gocqlx.WrapSession(cluster.CreateSession())
 		if err != nil {
 			return nil, err
