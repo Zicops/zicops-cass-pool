@@ -10,7 +10,7 @@ import (
 
 // New cassandra session and return Cassandra struct
 func New(conf *CassandraConfig) (*gocql.ClusterConfig, error) {
-	cluster := gocql.NewCluster(conf.Host)
+	cluster := gocql.NewCluster(conf.Host, conf.Host, conf.Host)
 	cluster.Keyspace = conf.Keyspace
 	cluster.Consistency = gocql.Quorum
 	cluster.Authenticator = gocql.PasswordAuthenticator{

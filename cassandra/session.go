@@ -18,7 +18,7 @@ func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 		}
 		cluster.ReconnectionPolicy = &gocql.ConstantReconnectionPolicy{MaxRetries: 10, Interval: 5 * time.Second}
 		cluster.RetryPolicy = &gocql.SimpleRetryPolicy{NumRetries: 10}
-		cluster.NumConns = 10
+		cluster.NumConns = 2
 		session, err := gocqlx.WrapSession(cluster.CreateSession())
 		if err != nil {
 			return nil, err
