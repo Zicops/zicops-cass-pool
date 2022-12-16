@@ -1,6 +1,8 @@
 package cassandra
 
 import (
+	gocql "github.com/gocql/gocql"
+	"github.com/hailocab/go-hostpool"
 	gocqlx "github.com/scylladb/gocqlx/v2"
 )
 
@@ -14,6 +16,9 @@ func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 			return nil, err
 		}
 		cluster.NumConns = 5
+		cluster.PoolConfig.HostSelectionPolicy = gocql.HostPoolHostPolicy(
+			hostpool.NewEpsilonGreedy(nil, 0, &hostpool.LinearEpsilonValueCalculator{}),
+		)
 		session, err := gocqlx.WrapSession(cluster.CreateSession())
 		if err != nil {
 			return nil, err

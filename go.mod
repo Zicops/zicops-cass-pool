@@ -3,6 +3,7 @@ module github.com/zicops/zicops-cass-pool
 go 1.18
 
 require (
+	github.com/bitly/go-hostpool v0.1.0
 	github.com/gocql/gocql v1.3.1
 	github.com/scylladb/gocqlx/v2 v2.7.0
 	github.com/sirupsen/logrus v1.9.0
