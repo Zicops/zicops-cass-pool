@@ -13,6 +13,7 @@ func GetCassSession(keyspace string) (*gocqlx.Session, error) {
 		if err != nil {
 			return nil, err
 		}
+		cluster.NumConns = 5
 		session, err := gocqlx.WrapSession(cluster.CreateSession())
 		if err != nil {
 			return nil, err
