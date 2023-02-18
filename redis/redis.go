@@ -5,12 +5,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/gomodule/redigo/redis"
-	//"github.com/garyburd/redigo/redis"
+	"context"
+
+	redis "github.com/redis/go-redis/v9"
+	"github.com/sirupsen/logrus"
 )
 
 var (
-	redisPool *redis.Pool
+	redisClient *redis.Client
 )
 
 func getEnv(key, fallback string) string {
@@ -20,66 +22,32 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
-func Initialize() (*redis.Pool, error) {
+func Initialize() (*redis.Client, error) {
 	redisHost := getEnv("REDIS_HOST", "127.0.0.1")
+	logrus.Info("Redis Host: ", redisHost)
 	redisPort := getEnv("REDIS_PORT", "6379")
 	redisPassword := getEnv("REDIS_PASSWORD", "")
-	redisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   100,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", fmt.Sprintf("%s:%s", redisHost, redisPort))
-			if err != nil {
-				return nil, err
-			}
-			if redisPassword != "" {
-				if _, err := c.Do("AUTH", redisPassword); err != nil {
-					c.Close()
-					return nil, err
-				}
-			}
-			return c, nil
-		},
-	}
-	return redisPool, nil
-}
-
-func GetRedisPool() *redis.Pool {
-	return redisPool
-}
-
-func GetRedisConn() redis.Conn {
-	return redisPool.Get()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+		Password: redisPassword,
+		DB:       0,
+	})
+	redisClient = rdb
+	return rdb, nil
 }
 
 func CloseRedisConn(conn redis.Conn) {
 	conn.Close()
 }
 
-func GetRedisValue(key string) (string, error) {
-	conn := GetRedisConn()
-	defer CloseRedisConn(conn)
-	return redis.String(conn.Do("GET", key))
+func GetRedisValue(ctx context.Context, key string) (string, error) {
+	return redisClient.Get(ctx, key).Result()
 }
 
-func SetRedisValue(key string, value string) error {
-	conn := GetRedisConn()
-	defer CloseRedisConn(conn)
-	_, err := conn.Do("SET", key, value)
-	return err
+func SetRedisValue(ctx context.Context, key string, value string) error {
+	return redisClient.Set(ctx, key, value, 0).Err()
 }
 
-func DeleteRedisValue(key string) error {
-	conn := GetRedisConn()
-	defer CloseRedisConn(conn)
-	_, err := conn.Do("DEL", key)
-	return err
-}
-
-func SetTTL(key string, ttl int) error {
-	conn := GetRedisConn()
-	defer CloseRedisConn(conn)
-	_, err := conn.Do("EXPIRE", key, ttl)
-	return err
+func SetTTL(ctx context.Context, key string, ttl int) error {
+	return redisClient.Expire(ctx, key, time.Duration(ttl)*time.Second).Err()
 }
