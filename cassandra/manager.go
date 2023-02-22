@@ -20,7 +20,10 @@ func (sm *sessManager) GetCassSession(keyspace string) (*gocqlx.Session, error) 
 	if session, ok := sm.sessions[keyspace]; ok {
 		return session, nil
 	}
-
+	if keyspace == "" {
+		keyspace = "userz"
+	}
+	sm.cluster.Keyspace = keyspace
 	session, err := gocqlx.WrapSession(sm.cluster.CreateSession())
 	if err != nil {
 		return nil, err
