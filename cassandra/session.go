@@ -58,12 +58,6 @@ func GetCassandraPoolInstance() *CassandraPool {
 func (p *CassandraPool) GetSession(ctx context.Context, keyspace string) (*gocqlx.Session, error) {
 	// Try to get an existing session from the pool.
 	session, err := p.getSession(keyspace)
-	if session != nil && session.isLocked() {
-		tempSession, err := p.createSession(ctx, keyspace)
-		if err == nil {
-			return tempSession.session, nil
-		}
-	}
 	if err != nil {
 		// If no session is available, create a new one and add it to the pool.
 		session, err = p.createSession(ctx, keyspace)
