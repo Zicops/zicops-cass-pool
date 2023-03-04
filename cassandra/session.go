@@ -13,7 +13,7 @@ import (
 
 const (
 	idleTimeout = 10 * time.Minute
-	pingPeriod  = 5 * time.Second
+	pingPeriod  = 1 * time.Second
 )
 
 // cassandraSession is a wrapper around gocqlx.Session with additional fields
@@ -58,6 +58,12 @@ func GetCassandraPoolInstance() *CassandraPool {
 func (p *CassandraPool) GetSession(ctx context.Context, keyspace string) (*gocqlx.Session, error) {
 	// Try to get an existing session from the pool.
 	session, err := p.getSession(keyspace)
+	if session != nil && session.isLocked() {
+		tempSession, err := p.createSession(ctx, keyspace)
+		if err == nil {
+			return tempSession.session, nil
+		}
+	}
 	if err != nil {
 		// If no session is available, create a new one and add it to the pool.
 		session, err = p.createSession(ctx, keyspace)
@@ -125,6 +131,10 @@ func (s *cassandraSession) markUsed() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.lastUsed = time.Now()
+}
+
+func (s *cassandraSession) isLocked() bool {
+	return s.mu.TryLock()
 }
 
 // pinger periodically checks for idle sessions and closes them.
